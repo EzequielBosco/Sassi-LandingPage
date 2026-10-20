@@ -1,0 +1,2366 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sassi — Pastelería</title>
+  <meta name="description" content="Sassi, pastelería artesanal: tortas, cookies, tartitas, alfajores, budines y salado hechos a mano. Pedidos por WhatsApp." />
+  <meta name="theme-color" content="#004633" />
+
+  <!-- Open Graph (vista previa al compartir en redes / WhatsApp) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Sassi — Pastelería" />
+  <meta property="og:description" content="Tortas, cookies, tartitas, alfajores, budines y salado hechos a mano." />
+  <meta property="og:image" content="img/tortas/rogel-1280.webp" />
+
+  <!-- Imagen del primer slide del hero: se pide antes para mejorar el LCP -->
+  <link rel="preload" as="image" href="img/tortas/rogel-1280.webp" type="image/webp" />
+
+  <!-- Google Fonts: Montserrat -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =============================================
+       VARIABLES & RESET
+    ============================================= */
+    :root {
+      --color-white:       #F5F5F0;
+      --color-green-dark:  #004633;
+      --color-green-light: #C0DA82;
+      --color-black:       #1A1A1A;
+      --color-overlay:     rgba(0, 0, 0, 0.38);
+      /* Margen lateral único del sitio: todo el contenido (nav, secciones, footer)
+         arranca y termina en esta línea */
+      --page-margin:       clamp(48px, 10vw, 160px);
+      --navbar-h:          58px;
+      /* Espacio vertical único de cada sección (arriba y abajo) */
+      --section-y:         clamp(72px, 8vw, 112px);
+      --radius-btn:        999px;
+      /* Radio único de fotos, cards y paneles (el de Cookies) */
+      --radius-img:        28px;
+      --transition:        0.2s ease;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: var(--navbar-h); }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--color-white);
+      color: var(--color-black);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Base tipográfica (antes la aportaba el reboot de Bootstrap) */
+    body {
+      line-height: 1.5;
+      -webkit-text-size-adjust: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+    h1, h2, h3, h4, h5, h6 { margin-bottom: 0.5rem; font-weight: 500; line-height: 1.2; }
+    p, ul { margin-bottom: 1rem; }
+    button { font-family: inherit; font-size: inherit; line-height: inherit; border-radius: 0; }
+    img, svg { vertical-align: middle; }
+
+    /* Layout de 2 columnas (Budines y footer): apiladas en mobile, 5/12 + 7/12 desde 768px */
+    .layout-split { display: flex; flex-wrap: wrap; }
+    .layout-split--center { align-items: center; }
+    .layout-split > * { flex-shrink: 0; width: 100%; max-width: 100%; }
+    @media (min-width: 768px) {
+      .layout-col-5 { flex: 0 0 auto; width: 41.666667%; }
+      .layout-col-7 { flex: 0 0 auto; width: 58.333333%; }
+    }
+
+    /* compensar navbar fixed en contenido */
+    main { flex: 1; }
+
+    img { display: block; width: 100%; object-fit: cover; }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* =============================================
+       SCROLL REVEAL — estado inicial
+    ============================================= */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Foco visible para navegación con teclado */
+    :focus-visible {
+      outline: 2px solid var(--color-green-light);
+      outline-offset: 3px;
+    }
+
+    /* Respetar usuarios con movimiento reducido */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+      .reveal { opacity: 1; transform: none; }
+    }
+
+    /* =============================================
+       BOTÓN BASE
+    ============================================= */
+    .btn-dulce {
+      display: inline-block;
+      background: var(--color-green-dark);
+      color: var(--color-white);
+      border: none;
+      border-radius: var(--radius-btn);
+      padding: 14px 32px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--transition);
+    }
+    .btn-dulce:hover {
+      background: #005c42;
+      color: var(--color-white);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,70,51,0.3);
+    }
+
+    /* =============================================
+       1. NAVBAR
+    ============================================= */
+    .navbar-custom {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      height: var(--navbar-h);
+      display: flex;
+      align-items: center;
+      padding: 0 var(--page-margin);
+      background: linear-gradient(180deg, rgba(26,26,26,0.55) 0%, rgba(26,26,26,0.28) 70%, rgba(26,26,26,0) 100%);
+      backdrop-filter: blur(1px);
+      -webkit-backdrop-filter: blur(1px);
+      transition: background-color 0.1s ease, box-shadow 0.1s ease, backdrop-filter 0.1s ease;
+    }
+    .navbar-custom.scrolled {
+      background: rgba(192,218,130,0.98);
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+    }
+    .navbar-custom.scrolled .nav-logo,
+    .navbar-custom.scrolled .nav-link-item {
+      color: var(--color-black);
+    }
+    .navbar-custom.scrolled .nav-link-item::after {
+      background: var(--color-black);
+    }
+    .navbar-custom.scrolled .hamburger span {
+      background: var(--color-black);
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Logo */
+    .nav-logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--color-white);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      transition: color 0.3s ease;
+    }
+    .nav-logo span { color: var(--color-green-light); }
+    .navbar-custom.scrolled .nav-logo span { color: var(--color-green-dark); }
+
+    /* Nav links desktop */
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      list-style: none;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    .nav-links > li {
+      display: flex;
+      align-items: center;
+      height: 100%;
+    }
+    .nav-link-item {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-white);
+      position: relative;
+      cursor: pointer;
+      transition: color 0.3s ease;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      padding-bottom: 0;
+    }
+    .nav-link-item::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 100%; height: 2px;
+      background: var(--color-white);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+    .nav-link-item:hover::after { transform: scaleX(1); }
+
+    /* Dropdown */
+    .nav-dropdown {
+      position: relative;
+      margin-bottom: 0;
+    }
+    .nav-dropdown::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -16px;
+      height: 16px;
+    }
+    .dropdown-menu-custom {
+      position: absolute;
+      top: 100%;           /* sin gap — pegado al trigger */
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: rgba(26,26,26,0.95);
+      border-radius: 0 0 var(--radius-img) var(--radius-img);
+      padding: 10px 0 12px; /* padding-top crea el espacio visual sin romper el hover */
+      min-width: 170px;
+      list-style: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.22);
+    }
+    .nav-dropdown:hover .dropdown-menu-custom,
+    .nav-dropdown:focus-within .dropdown-menu-custom {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+    .dropdown-menu-custom li a {
+      display: block;
+      padding: 10px 22px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: var(--color-white);
+      text-transform: uppercase;
+      white-space: nowrap;
+      transition: color var(--transition), padding-left var(--transition);
+    }
+    .dropdown-menu-custom li a:hover {
+      color: var(--color-green-light);
+      padding-left: 28px;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 26px; height: 2px;
+      background: var(--color-white);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      position: fixed;
+      top: var(--navbar-h);
+      left: 0; right: 0;
+      background: rgba(26,26,26,0.97);
+      padding: 24px var(--page-margin) 32px;
+      display: none;
+      flex-direction: column;
+      gap: 0;
+      z-index: 999;
+      transform: translateY(-10px);
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .mobile-menu.open {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .mobile-menu a {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-white);
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      transition: color var(--transition), padding-left var(--transition);
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--color-green-light); padding-left: 8px; }
+
+    /* =============================================
+       2. HERO — RECOMENDADOS
+    ============================================= */
+    #hero {
+      height: 100dvh;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: var(--color-green-light);
+    }
+
+    /* Imagen derecha: ocupa el 57% derecho; cambia de foto con cada slide */
+    .hero-img-fixed {
+      position: absolute;
+      top: 0; right: 0;
+      width: 57%;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .hero-img-fixed img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: opacity 0.7s ease;
+    }
+    .hero-img-fixed img.fade-out { opacity: 0; }
+
+    /* Degradado: solo oscurece la zona central donde imagen y texto se solapan */
+    .hero-gradient-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent           0%,
+        transparent           35%,
+        rgba(10,10,10,0.18)   48%,
+        rgba(10,10,10,0.0)    58%
+      );
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Color de fondo base — verde claro de marca en la mitad izquierda */
+    .hero-bg-color {
+      position: absolute;
+      inset: 0;
+      background: var(--color-green-light);
+      z-index: 0;
+    }
+
+    /* ── Wrapper del contenido textual (izquierda, fijo en posición) ── */
+    .hero-text-wrapper {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      padding-top: var(--navbar-h);
+      padding-left: var(--page-margin);
+      padding-right: var(--page-margin);
+      pointer-events: none; /* los links dentro sí tienen pointer-events */
+    }
+
+    /* ── Cada panel de texto (uno por slide) ── */
+    .hero-text-panel {
+      /* no pasar del borde de la foto (empieza en el 43% del ancho) */
+      max-width: min(520px, calc(43vw - var(--page-margin) - 32px));
+      pointer-events: none;
+      position: absolute;
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .hero-text-panel.active {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+      position: relative;
+    }
+    .hero-text-panel.exit {
+      opacity: 0;
+      transform: translateY(-18px);
+      pointer-events: none;
+      position: absolute;
+    }
+
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--color-green-dark);
+      opacity: 0.75;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      /* escala con el espacio entre el margen y la foto: la palabra más larga
+         ("generaciones.") mide ~7.4em y tiene que entrar en esa columna */
+      font-size: clamp(2.2rem, calc(4.4vw - 5px), 5.2rem);
+      font-weight: 900;
+      color: var(--color-black);
+      line-height: 1.0;
+      letter-spacing: -0.025em;
+      margin-bottom: 14px;
+    }
+
+    .hero-subtitle {
+      font-size: clamp(0.95rem, 2vw, 1.3rem);
+      font-weight: 600;
+      color: var(--color-green-dark);
+      margin-bottom: 14px;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-desc {
+      font-size: 0.92rem;
+      font-weight: 400;
+      color: rgba(26,26,26,0.65);
+      line-height: 1.75;
+      margin-bottom: 32px;
+      max-width: 400px;
+    }
+
+    /* Hero dots */
+    .hero-dots {
+      position: absolute;
+      bottom: 32px;
+      left: var(--page-margin);
+      display: flex;
+      gap: 10px;
+      z-index: 4;
+    }
+    .hero-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: rgba(26,26,26,0.25);
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      padding: 0;
+    }
+    .hero-dot.active {
+      background: var(--color-green-dark);
+      width: 28px;
+      border-radius: 4px;
+    }
+
+    /* Mobile y tablet: imagen ocupa todo el fondo, texto encima
+       (por debajo de 992px no hay lugar para texto y foto lado a lado) */
+    @media (max-width: 991px) {
+      .hero-title { font-size: clamp(2.2rem, 10vw, 3.6rem); }
+      .hero-img-fixed { width: 100%; opacity: 0.35; }
+      .hero-gradient-overlay {
+        background: linear-gradient(
+          0deg,
+          rgba(192,218,130,0.72) 0%,
+          rgba(192,218,130,0.42) 55%,
+          rgba(192,218,130,0.05) 100%
+        );
+      }
+      .hero-text-wrapper { align-items: flex-end; padding-bottom: 80px; }
+      .hero-text-panel { max-width: 100%; }
+      .hero-dots { left: 50%; transform: translateX(-50%); bottom: 28px; }
+    }
+
+    /* =============================================
+       ENCABEZADOS DE SECCIÓN — compartidos
+    ============================================= */
+    .section-eyebrow {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+    }
+    .section-header {
+      margin-bottom: 45px;
+    }
+
+    /* =============================================
+       3. TORTAS — Estante con scroll horizontal
+    ============================================= */
+    #tortas {
+      background: var(--color-white);
+      padding: var(--section-y) var(--page-margin);
+      overflow: hidden;
+    }
+    #tortas .section-title { color: var(--color-black); }
+    #tortas .section-eyebrow { color: var(--color-green-dark); opacity: 0.7; }
+
+    .shelf {
+      --shelf-gap: 24px;
+      --shelf-visible: 3.5;   /* cards visibles: la fracción insinúa que hay más */
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: calc((100% - (var(--shelf-visible) - 0.5) * var(--shelf-gap)) / var(--shelf-visible));
+      gap: var(--shelf-gap);
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      /* arranca en la línea del margen y llega hasta el borde derecho de la pantalla */
+      margin-right: calc(-1 * var(--page-margin));
+      padding-right: var(--page-margin);
+      padding-bottom: 8px;
+    }
+    .shelf::-webkit-scrollbar { display: none; }
+    .shelf:focus-visible { outline-offset: 6px; }
+
+    .shelf-card { scroll-snap-align: start; display: flex; flex-direction: column; gap: 16px; }
+    .shelf-card-media {
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      aspect-ratio: 3 / 4;
+      background: rgba(0,0,0,0.06);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+    }
+    .shelf-card-media img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+    }
+    .shelf-card:hover .shelf-card-media img { transform: scale(1.05); }
+    .shelf-card-title {
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-transform: uppercase;
+      color: var(--color-black);
+      margin-bottom: 6px;
+    }
+    .shelf-card-desc {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: rgba(26,26,26,0.78);
+      max-width: 36ch;
+      margin-bottom: 0;
+    }
+
+    /* Controles: barra de progreso + flechas */
+    .shelf-controls {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      margin-top: 36px;
+    }
+    .shelf-progress {
+      flex: 1;
+      height: 3px;
+      border-radius: 3px;
+      background: rgba(26,26,26,0.12);
+      overflow: hidden;
+    }
+    .shelf-progress-bar {
+      height: 100%;
+      width: 30%;
+      border-radius: 3px;
+      background: var(--color-green-dark);
+      transition: transform 0.15s linear;
+    }
+    .shelf-arrows { display: flex; gap: 12px; }
+    .shelf-arrows .carousel-arrow:disabled { opacity: 0.3; cursor: default; transform: none; background: transparent; color: var(--color-black); }
+
+    @media (max-width: 1199px) { .shelf { --shelf-visible: 2.5; } }
+    @media (max-width: 767px) {
+      .shelf { --shelf-visible: 1.25; --shelf-gap: 16px; }
+      .shelf-arrows { display: none; }   /* en mobile se desliza con el dedo */
+    }
+
+    /* =============================================
+       GRILLA DE PRODUCTOS — cards con foto y texto debajo (Salado)
+    ============================================= */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 28px;
+      align-items: start;
+    }
+    .product-card {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .product-card-media {
+      position: relative;
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      aspect-ratio: 4 / 5;
+      background: rgba(0,0,0,0.06);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+    }
+    .product-card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+    }
+    .product-card:hover .product-card-media img { transform: scale(1.05); }
+    .product-card-title {
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .product-card-desc {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      max-width: 36ch;
+    }
+    @media (max-width: 991px) {
+      .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 575px) {
+      .product-grid { grid-template-columns: 1fr; }
+      .product-card-desc { max-width: none; }
+    }
+
+    /* =============================================
+       7. ALFAJORES — Bento (1 destacado + 3, texto sobre la foto)
+    ============================================= */
+    #alfajores {
+      background: var(--color-white);
+      padding: var(--section-y) var(--page-margin);
+    }
+    #alfajores .section-eyebrow { color: var(--color-green-dark); opacity: 0.95; }
+    #alfajores .section-title { color: var(--color-black); }
+    #alfajores .section-intro {
+      font-size: 0.95rem;
+      color: rgba(26,26,26,0.82);
+      line-height: 1.8;
+      margin-top: 16px;
+      max-width: 520px;
+    }
+
+    .alfajores-bento {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr 1fr;
+      grid-auto-rows: clamp(240px, 22vw, 320px);
+      gap: 20px;
+    }
+    /* 01 ocupa dos filas; 02 ocupa dos columnas */
+    .alfajor-tile:nth-child(1) { grid-row: span 2; }
+    .alfajor-tile:nth-child(2) { grid-column: span 2; }
+
+    .alfajor-tile {
+      position: relative;
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      background: rgba(0,0,0,0.06);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+    }
+    .alfajor-tile img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.45s ease;
+    }
+    .alfajor-tile:hover img { transform: scale(1.05); }
+    .alfajor-tile-body {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 48px 24px 22px;
+      background: linear-gradient(0deg, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.6) 60%, transparent 100%);
+    }
+    .alfajor-title {
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      text-transform: uppercase;
+      color: var(--color-white);
+      margin-bottom: 6px;
+    }
+    .alfajor-tile:nth-child(1) .alfajor-title { font-size: clamp(1.5rem, 2.6vw, 2.2rem); }
+    .alfajor-tile:nth-child(1) .alfajor-tile-body { padding: 64px 32px 28px; }
+    .alfajor-desc {
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(245,245,240,0.85);
+      max-width: 38ch;
+      margin-bottom: 0;
+    }
+
+    /* Tablet: 2 columnas — 01 alto a la izquierda, 02 y 03 a la derecha, 04 ancho abajo */
+    @media (max-width: 991px) {
+      .alfajores-bento { grid-template-columns: 1fr 1fr; }
+      .alfajor-tile:nth-child(2) { grid-column: auto; }
+      .alfajor-tile:nth-child(4) { grid-column: span 2; }
+    }
+    /* Mobile: una columna, cada foto con su propia proporción */
+    @media (max-width: 575px) {
+      .alfajores-bento { grid-template-columns: 1fr; grid-auto-rows: auto; gap: 16px; }
+      .alfajor-tile:nth-child(n) { grid-row: auto; grid-column: auto; aspect-ratio: 4 / 3; }
+      .alfajor-tile:nth-child(1) { aspect-ratio: 4 / 5; }
+    }
+
+    /* =============================================
+       8. SALADO — Grilla
+    ============================================= */
+    #salado {
+      background: var(--color-green-dark);
+      padding: var(--section-y) var(--page-margin);
+      overflow: hidden;
+    }
+    #salado .section-title { color: var(--color-white); }
+    #salado .section-eyebrow { color: var(--color-green-light); opacity: 0.8; }
+    #salado .product-card-media { background: rgba(255,255,255,0.06); }
+    #salado .product-card-title { color: var(--color-white); }
+    #salado .product-card-desc { color: rgba(245,245,240,0.78); }
+
+    /* =============================================
+       4. COOKIES — Carousel 3D
+    ============================================= */
+    #cookies {
+      background: var(--color-green-dark);
+      padding: var(--section-y) var(--page-margin);
+      overflow: hidden;
+    }
+    #cookies .section-title { color: var(--color-white); }
+    #cookies .section-eyebrow { color: var(--color-green-light); opacity: 0.8; }
+    #cookies .carousel-arrow {
+      border-color: rgba(245,245,240,0.78);
+      color: var(--color-white);
+    }
+    #cookies .carousel-arrow:hover {
+      background: var(--color-green-light);
+      color: var(--color-green-dark);
+    }
+    /* Las cards de cookies llevan texto debajo de la foto: las flechas se alinean
+       con el centro de la FOTO (cuadrada, lado = ancho de la card), no de la card.
+       100cqw = ancho del carrusel; cada card mide min(340px, (ancho - flechas - gaps) / 3). */
+    #cookies .carousel-3d-wrapper {
+      container-type: inline-size;
+      align-items: flex-start;
+    }
+    #cookies .carousel-arrow {
+      margin-top: calc(min(340px, (100cqw - 104px - 48px) / 3) / 2 - 26px);
+    }
+    #cookies .carousel-3d-track {
+      align-items: flex-start;
+    }
+    #cookies .card-3d {
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    #cookies .card-3d.side {
+      width: 340px;
+      height: auto;
+      opacity: 0.7;
+      transform: none;
+    }
+    #cookies .card-3d.center {
+      width: 340px;
+      height: auto;
+      transform: none;
+      z-index: 2;
+      box-shadow: none;
+    }
+    #cookies .cookie-card-media {
+      position: relative;
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      aspect-ratio: 1 / 1;
+      background: rgba(255,255,255,0.08);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.16);
+    }
+    #cookies .cookie-card-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    #cookies .card-3d:hover .cookie-card-media img {
+      transform: scale(1.05);
+    }
+    #cookies .cookie-card-body {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 8px;
+    }
+    #cookies .cookie-card-title {
+      font-size: clamp(1.1rem, 1.6vw, 1.35rem);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--color-white);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    #cookies .cookie-card-desc {
+      font-size: 0.88rem;
+      line-height: 1.65;
+      color: rgba(245,245,240,0.78);
+      max-width: 28ch;
+    }
+
+    .carousel-3d-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      min-height: 420px;
+    }
+
+    .carousel-3d-track {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      width: 100%;
+      min-width: 0;
+      perspective: 1000px;
+    }
+
+    .card-3d {
+      position: relative;
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      cursor: pointer;
+      flex-shrink: 1;
+      min-width: 0;
+      transition: all 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    /* side cards */
+    .card-3d.side {
+      width: 240px;
+      height: 320px;
+      opacity: 0.55;
+      transform: scale(0.84);
+    }
+    /* center card */
+    .card-3d.center {
+      width: 300px;
+      height: 400px;
+      opacity: 1;
+      transform: scale(1.06) translateZ(0);
+      z-index: 2;
+      box-shadow: 0 32px 64px rgba(0,0,0,0.22);
+    }
+    .card-3d img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .card-3d:hover img { transform: scale(1.06); }
+
+    .card-3d-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, rgba(0,0,0,0.78) 0%, transparent 55%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 24px 20px;
+    }
+    .card-3d:hover .card-3d-overlay,
+    .card-3d.center:focus-within .card-3d-overlay { opacity: 1; }
+    /* En pantallas táctiles no hay hover: mostrar siempre el nombre en la card central */
+    @media (hover: none) {
+      .card-3d.center .card-3d-overlay { opacity: 1; }
+    }
+    .card-3d-overlay h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-white);
+      margin-bottom: 6px;
+    }
+    .card-3d-overlay p {
+      font-size: 0.8rem;
+      color: rgba(245,245,240,0.8);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+
+    /* Puntos indicadores (uno por producto; el activo es una píldora, como en el hero) */
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: 28px;
+    }
+    .carousel-dot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px; height: 24px;   /* área de toque mayor que el punto visible */
+      padding: 0;
+      border: none;
+      background: none;
+      cursor: pointer;
+      transition: width 0.3s ease;
+    }
+    .carousel-dot::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 4px;
+      background: rgba(26,26,26,0.25);
+      transition: width 0.3s ease, background-color 0.3s ease;
+    }
+    .carousel-dot:hover::before { background: rgba(26,26,26,0.5); }
+    .carousel-dot.active { width: 38px; }
+    .carousel-dot.active::before { width: 28px; background: var(--color-green-dark); }
+    /* Cookies tiene fondo verde oscuro */
+    #cookies .carousel-dot::before { background: rgba(245,245,240,0.3); }
+    #cookies .carousel-dot:hover::before { background: rgba(245,245,240,0.6); }
+    #cookies .carousel-dot.active::before { background: var(--color-green-light); }
+
+    /* Flechas de los carruseles */
+    .carousel-arrow {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--color-black);
+      background: transparent;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      font-size: 1.4rem;
+      color: var(--color-black);
+      transition: all var(--transition);
+      flex-shrink: 0;
+      z-index: 5;
+    }
+    .carousel-arrow:hover {
+      background: var(--color-black);
+      color: var(--color-white);
+      transform: scale(1.08);
+    }
+
+    /* =============================================
+       5. BUDINES — Acordeón
+    ============================================= */
+    #budines {
+      background: var(--color-white);
+      padding: var(--section-y) var(--page-margin);
+    }
+
+    .budines-right { padding-left: clamp(0px, 2vw, 24px); }
+
+    .budines-left .section-eyebrow { color: var(--color-green-dark); opacity: 0.95; }
+    .budines-left .section-title { color: var(--color-black); }
+    .budines-left .budines-intro {
+      font-size: 0.95rem;
+      color: rgba(26,26,26,0.88);
+      line-height: 1.8;
+      margin-top: 20px;
+      max-width: 340px;
+    }
+
+    .accordion-list { list-style: none; padding-left: 0; margin-bottom: 0; }
+
+    .accordion-item {
+      border-bottom: 1px solid rgba(26,26,26,0.12);
+    }
+    .accordion-item:first-child { border-top: 1px solid rgba(26,26,26,0.12); }
+
+    .accordion-trigger {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 22px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: all var(--transition);
+    }
+    .accordion-trigger:hover .accordion-num { color: var(--color-green-light); }
+
+    .accordion-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(26,26,26,0.5);
+      min-width: 28px;
+      transition: color var(--transition);
+    }
+    .accordion-title {
+      flex: 1;
+      font-size: clamp(0.85rem, 1.5vw, 1rem);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-green-dark);
+    }
+    .accordion-icon {
+      font-size: 1.4rem;
+      color: rgba(26,26,26,0.55);
+      transition: transform 0.35s ease, color 0.2s ease;
+      line-height: 1;
+      font-weight: 300;
+    }
+    .accordion-item.open .accordion-icon {
+      transform: rotate(45deg);
+      color: var(--color-green-light);
+    }
+
+    .accordion-body {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 0.38s ease;
+    }
+    .accordion-item.open .accordion-body {
+      grid-template-rows: 1fr;
+    }
+    .accordion-body-inner {
+      overflow: hidden;
+    }
+    .accordion-body-content {
+      display: flex;
+      gap: 24px;
+      padding-bottom: 28px;
+      align-items: flex-start;
+    }
+    .accordion-body-content p {
+      font-size: 0.88rem;
+      color: rgba(26,26,26,0.82);
+      line-height: 1.8;
+      flex: 1;
+    }
+    .accordion-body-img {
+      width: 240px;
+      height: 180px;
+      border-radius: var(--radius-img);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+    /* Pantallas angostas: foto debajo del texto para no apretarlo */
+    @media (max-width: 575px) {
+      .accordion-body-content { flex-direction: column; gap: 16px; }
+      .accordion-body-img { width: 100%; height: auto; aspect-ratio: 4 / 3; }
+    }
+
+    /* =============================================
+       6. TARTITAS — Carousel 3D
+    ============================================= */
+    #tartitas {
+      background: var(--color-green-light);
+      padding: var(--section-y) var(--page-margin);
+      overflow: hidden;
+    }
+    #tartitas .section-title { color: var(--color-black); }
+    #tartitas .section-eyebrow { color: var(--color-green-dark); }
+    #tartitas .carousel-3d-wrapper {
+      min-height: 500px;
+    }
+    #tartitas .card-3d.side {
+      width: 280px;
+      height: 360px;
+      opacity: 0.6;
+      transform: scale(0.88);
+    }
+    #tartitas .card-3d.center {
+      width: 340px;
+      height: 440px;
+      transform: scale(1.03) translateZ(0);
+    }
+
+    /* =============================================
+       9. GALERÍA
+    ============================================= */
+    #galeria {
+      background: var(--color-white);
+      padding: var(--section-y) var(--page-margin);
+    }
+    #galeria .section-title { color: var(--color-black); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 991px) {
+      .gallery-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 767px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    .gallery-item {
+      position: relative;
+      display: block;
+      width: 100%;
+      border: none;
+      padding: 0;
+      background: rgba(0,0,0,0.06);
+      border-radius: var(--radius-img);
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      cursor: zoom-in;
+    }
+    .gallery-item:focus-visible .gallery-overlay { opacity: 1; }
+    @media (hover: none) {
+      .gallery-overlay { opacity: 1 !important; background: linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 45%) !important; }
+    }
+
+    /* Lightbox */
+    .lightbox {
+      border: none;
+      padding: 0;
+      background: transparent;
+      max-width: min(92vw, 1100px);
+      max-height: 92vh;
+      margin: auto;
+      overflow: visible;
+    }
+    .lightbox::backdrop { background: rgba(10,10,10,0.88); }
+    .lightbox img {
+      width: auto;
+      max-width: 100%;
+      max-height: 84vh;
+      border-radius: var(--radius-img);
+      object-fit: contain;
+      margin: 0 auto;
+    }
+    .lightbox-caption {
+      color: var(--color-white);
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-top: 12px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: -14px; right: -14px;
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: var(--color-white);
+      color: var(--color-black);
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+    }
+    .gallery-item img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .gallery-item:hover img { transform: scale(1.06); }
+
+    .gallery-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.52);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      display: flex;
+      align-items: flex-end;
+      padding: 18px 14px;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay span {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--color-white);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    /* =============================================
+       10. CONTACTO — Footer
+    ============================================= */
+    footer#contacto {
+      background: var(--color-green-dark);
+      padding: 64px var(--page-margin) 38px;
+      border-top: 1px solid rgba(245,245,240,0.12);
+    }
+
+    .contact-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,245,240,0.55);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .contact-phone {
+      font-size: clamp(2.05rem, 4.25vw, 3.75rem);
+      font-weight: 900;
+      color: var(--color-white);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 20px;
+      display: inline-block;   /* el hover/click solo sobre el número, no todo el ancho */
+      transition: color 0.3s ease;
+    }
+    /* Hover sutil: tinte leve hacia el verde de marca (el mail pasa al verde pleno) */
+    .contact-phone:hover { color: color-mix(in srgb, var(--color-white) 65%, var(--color-green-light)); }
+    .contact-or {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: rgba(245,245,240,0.45);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .contact-email {
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--color-white);
+      border-bottom: 1px solid rgba(245,245,240,0.85);
+      padding-bottom: 2px;
+      transition: color var(--transition), border-color var(--transition);
+    }
+    .contact-email:hover { color: var(--color-green-light); border-color: var(--color-green-light); }
+
+    .footer-credit-link {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: rgba(245,245,240,0.72);
+      border-bottom: 1px solid rgba(245,245,240,0.5);
+      padding-bottom: 1px;
+      transition: color var(--transition), border-color var(--transition), opacity var(--transition);
+    }
+    .footer-credit-link:hover {
+      color: var(--color-white);
+      border-color: var(--color-white);
+    }
+
+    /* Social buttons */
+    .social-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .social-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 22px;
+      border: 1.5px solid rgba(245,245,240,0.24);
+      border-radius: var(--radius-img);
+      background: transparent;
+      color: var(--color-white);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .social-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+    /* Hover: el borde y el logo toman el color de cada red; el texto no cambia
+       (los SVG usan currentColor, así que alcanza con cambiar "color" en el svg) */
+    .social-btn svg { transition: color 0.25s ease; }
+    .social-btn.instagram:hover { border-color: #E1306C; }
+    .social-btn.instagram:hover svg { color: #E1306C; }
+    .social-btn.tiktok:hover    { border-color: #25F4EE; }
+    .social-btn.tiktok:hover svg    { color: #25F4EE; }
+    .social-btn.twitter:hover   { border-color: #000; }
+    .social-btn.twitter:hover svg   { color: #000; }
+
+    /* Footer bottom */
+    .footer-bottom {
+      margin-top: 45px;
+      padding-top: 19px;
+      border-top: 1px solid rgba(245,245,240,0.12);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .footer-bottom p {
+      font-size: 0.75rem;
+      color: rgba(245,245,240,0.5);
+    }
+
+    /* =============================================
+       WHATSAPP FLOTANTE
+    ============================================= */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .whatsapp-tooltip {
+      background: var(--color-black);
+      color: var(--color-white);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 7px 14px;
+      border-radius: 999px;
+      opacity: 0;
+      transform: translateX(6px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .whatsapp-float:hover .whatsapp-tooltip {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    .whatsapp-btn {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: #25D366;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 20px rgba(37,211,102,0.4);
+      transition: all var(--transition);
+    }
+    .whatsapp-btn:hover {
+      transform: scale(1.12);
+      box-shadow: 0 10px 28px rgba(37,211,102,0.55);
+    }
+    .whatsapp-btn svg { width: 28px; height: 28px; }
+
+    @media (max-width: 767px) {
+      .whatsapp-btn svg { width: 24px; height: 24px; }
+      .whatsapp-float { bottom: 20px; right: 16px; }
+    }
+
+    /* =============================================
+       RESPONSIVE OVERRIDES
+    ============================================= */
+    @media (max-width: 991px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+
+      .card-3d.side { display: none; }
+      .card-3d.center { width: 300px; height: 390px; transform: scale(1); }
+
+      .carousel-3d-track { gap: 0; }
+      /* necesaria: "#cookies .card-3d { display: flex }" le gana a ".card-3d.side" */
+      #cookies .card-3d.side { display: none; }
+      #cookies .card-3d.center { width: 300px; height: auto; transform: none; }
+      /* Cookies: flechas al centro de la foto (una sola card de 300px) */
+      #cookies .carousel-arrow { margin-top: calc(150px - 26px); }
+    }
+
+    @media (max-width: 767px) {
+      .carousel-3d-wrapper .carousel-arrow,
+      #cookies .carousel-3d-wrapper .carousel-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px; height: 40px;
+        font-size: 1.2rem;
+        background: rgba(245,245,240,0.88);
+        border-color: transparent;
+        color: var(--color-black);
+      }
+      .carousel-3d-wrapper .carousel-arrow:hover { transform: translateY(-50%); }
+      .carousel-3d-wrapper .carousel-arrow[id$="Prev"] { left: 8px; }
+      .carousel-3d-wrapper .carousel-arrow[id$="Next"] { right: 8px; }
+      /* Cookies: centro de la foto (card de min(ancho, 340px)), no de la card con texto */
+      #cookies .carousel-3d-wrapper .carousel-arrow {
+        top: calc(min(100cqw, 340px) / 2);
+        margin-top: 0;
+      }
+      .card-3d.center,
+      #cookies .card-3d.center { width: 100%; max-width: 340px; }
+
+      #budines .layout-split { flex-direction: column; }
+      .budines-left { margin-bottom: 40px; }
+      .budines-left .budines-intro { max-width: 100%; }
+      .budines-right { padding-left: 0; }
+
+      .contact-phone { font-size: clamp(2.2rem, 10vw, 3.5rem); }
+
+      .social-links { flex-direction: row; flex-wrap: wrap; }
+      .social-btn { flex: 1; min-width: 120px; justify-content: center; }
+
+      .footer-bottom { flex-direction: column; text-align: center; }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- ==========================================
+       NAVBAR
+  =========================================== -->
+  <nav class="navbar-custom" id="navbar" role="navigation" aria-label="Menú principal">
+    <div class="navbar-inner">
+      <!-- Logo -->
+      <a href="#" class="nav-logo">Sas<span>si</span></a>
+
+      <!-- Desktop links -->
+      <ul class="nav-links" role="list">
+        <li class="nav-dropdown">
+          <span class="nav-link-item" tabindex="0">Categorías ▾</span>
+          <ul class="dropdown-menu-custom" role="list">
+            <li><a href="#tortas">Tortas</a></li>
+            <li><a href="#cookies">Cookies</a></li>
+            <li><a href="#budines">Budines</a></li>
+            <li><a href="#tartitas">Tartitas</a></li>
+            <li><a href="#alfajores">Alfajores</a></li>
+            <li><a href="#salado">Salado</a></li>
+          </ul>
+        </li>
+        <li><a href="#galeria" class="nav-link-item">Galería</a></li>
+        <li><a href="#contacto" class="nav-link-item">Contacto</a></li>
+      </ul>
+
+      <!-- Hamburger -->
+      <button class="hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu" role="navigation" aria-label="Menú móvil">
+    <a href="#tortas" class="mobile-link">Tortas</a>
+    <a href="#cookies" class="mobile-link">Cookies</a>
+    <a href="#budines" class="mobile-link">Budines</a>
+    <a href="#tartitas" class="mobile-link">Tartitas</a>
+    <a href="#alfajores" class="mobile-link">Alfajores</a>
+    <a href="#salado" class="mobile-link">Salado</a>
+    <a href="#galeria" class="mobile-link">Galería</a>
+    <a href="#contacto" class="mobile-link">Contacto</a>
+  </div>
+
+  <!-- ==========================================
+       MAIN CONTENT
+  =========================================== -->
+  <main>
+
+    <!-- ========================================
+         2. HERO — RECOMENDADOS
+    ========================================= -->
+    <section id="hero" aria-label="Recomendados">
+
+      <!-- Fondo verde claro base -->
+      <div class="hero-bg-color"></div>
+
+      <!-- Imagen derecha FIJA — cambia de src vía JS, no se mueve -->
+      <div class="hero-img-fixed" id="heroImgFixed" aria-hidden="true">
+        <img id="heroImgEl"
+          src="img/tortas/rogel-1280.webp"
+          width="1280" height="1707"
+          fetchpriority="high"
+          alt="" />
+      </div>
+
+      <!-- Degradado sobre la imagen para legibilidad del texto -->
+      <div class="hero-gradient-overlay"></div>
+
+      <!-- Contenedor de paneles de texto (IZQUIERDA, fijo en posición) -->
+      <div class="hero-text-wrapper" id="heroTextWrapper">
+
+        <!-- Panel 1: Torta → #tortas (único h1 de la página) -->
+        <div class="hero-text-panel active" data-img="img/tortas/rogel-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h1 class="hero-title">Capa sobre capa,<br>dulce de leche.</h1>
+          <p class="hero-subtitle">Rogel</p>
+          <p class="hero-desc">Hojas finas y crocantes, abundante dulce de leche y una corona de merengue italiano.</p>
+          <a href="#tortas" class="btn-dulce">Ver tortas</a>
+        </div>
+
+        <!-- Panel 2: Cookie → #cookies -->
+        <div class="hero-text-panel" data-img="img/cookies/triple-chocolate-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h2 class="hero-title">Crujiente por fuera,<br>fundente por dentro.</h2>
+          <p class="hero-subtitle">Cookie triple chocolate</p>
+          <p class="hero-desc">Masa de cacao, chips de chocolate y un centro de ganache que se derrite.</p>
+          <a href="#cookies" class="btn-dulce">Ver cookies</a>
+        </div>
+
+        <!-- Panel 3: Tartita → #tartitas -->
+        <div class="hero-text-panel" data-img="img/tartitas/frutillas-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h2 class="hero-title">Pequeña obra,<br>gran sabor.</h2>
+          <p class="hero-subtitle">Tartitas individuales</p>
+          <p class="hero-desc">Frutillas, lima, chocolate, coco y dulce de leche. Ideales para mesas dulces y eventos.</p>
+          <a href="#tartitas" class="btn-dulce">Ver tartitas</a>
+        </div>
+
+        <!-- Panel 4: Budín → #budines -->
+        <div class="hero-text-panel" data-img="img/budines/budin-arandanos-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h2 class="hero-title">Tradición de tres<br>generaciones.</h2>
+          <p class="hero-subtitle">Budín de arándanos</p>
+          <p class="hero-desc">Miga húmeda con arándanos y cubierta crocante de crumble. Horneado cada mañana.</p>
+          <a href="#budines" class="btn-dulce">Ver budines</a>
+        </div>
+
+        <!-- Panel 5: Alfajores → #alfajores -->
+        <div class="hero-text-panel" data-img="img/alfajores/alfajor-maicena-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h2 class="hero-title">Los clásicos<br>de siempre.</h2>
+          <p class="hero-subtitle">Alfajores</p>
+          <p class="hero-desc">Alfajores de maicena con dulce de leche y coco, y alfajores de chocolate.</p>
+          <a href="#alfajores" class="btn-dulce">Ver alfajores</a>
+        </div>
+
+        <!-- Panel 6: Salado → #salado -->
+        <div class="hero-text-panel" data-img="img/salado/bocaditos-1280.webp">
+          <span class="hero-eyebrow">Recomendados</span>
+          <h2 class="hero-title">Salado del día,<br>listo para compartir.</h2>
+          <p class="hero-subtitle">Bocaditos y scones</p>
+          <p class="hero-desc">Opciones saladas ideales para brunch, picadas o catering, con el mismo cuidado artesanal de siempre.</p>
+          <a href="#salado" class="btn-dulce">Ver salado</a>
+        </div>
+
+      </div><!-- /hero-text-wrapper -->
+
+      <!-- Dots -->
+      <div class="hero-dots" id="heroDots" role="tablist" aria-label="Productos recomendados">
+        <button class="hero-dot active" role="tab" aria-selected="true" aria-label="Rogel"></button>
+        <button class="hero-dot" role="tab" aria-selected="false" aria-label="Cookie triple chocolate"></button>
+        <button class="hero-dot" role="tab" aria-selected="false" aria-label="Tartitas"></button>
+        <button class="hero-dot" role="tab" aria-selected="false" aria-label="Budín de arándanos"></button>
+        <button class="hero-dot" role="tab" aria-selected="false" aria-label="Alfajores"></button>
+        <button class="hero-dot" role="tab" aria-selected="false" aria-label="Salado"></button>
+      </div>
+
+    </section>
+
+    <!-- ========================================
+         3. TORTAS — Estante horizontal
+    ========================================= -->
+    <section id="tortas" aria-labelledby="tortas-title">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">La vitrina</span>
+        <h2 class="section-title" id="tortas-title">Tortas</h2>
+      </div>
+
+      <div class="shelf reveal" id="tortasShelf" tabindex="0" role="region" aria-label="Tortas: deslizá para ver más"></div>
+
+      <div class="shelf-controls">
+        <div class="shelf-progress" aria-hidden="true"><div class="shelf-progress-bar" id="tortasShelfBar"></div></div>
+        <div class="shelf-arrows">
+          <button type="button" class="carousel-arrow" id="tortasShelfPrev" aria-label="Anterior">&#8249;</button>
+          <button type="button" class="carousel-arrow" id="tortasShelfNext" aria-label="Siguiente">&#8250;</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================
+         4. COOKIES — Carousel 3D
+    ========================================= -->
+    <section id="cookies" aria-label="Cookies">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Nuestra selección</span>
+        <h2 class="section-title">Cookies</h2>
+      </div>
+
+      <div class="carousel-3d-wrapper reveal" style="margin-top: 38px;">
+        <button class="carousel-arrow" id="cookiesPrev" aria-label="Anterior">&#8249;</button>
+
+        <div class="carousel-3d-track" id="cookiesTrack">
+          <!-- Cards generadas por JS -->
+        </div>
+
+        <button class="carousel-arrow" id="cookiesNext" aria-label="Siguiente">&#8250;</button>
+      </div>
+
+      <div class="carousel-dots" id="cookiesDots" role="group" aria-label="Productos de Cookies"></div>
+    </section>
+
+    <!-- ========================================
+         5. BUDINES — Acordeón
+    ========================================= -->
+    <section id="budines" aria-label="Budines">
+        <div class="layout-split">
+
+          <!-- Izquierda -->
+          <div class="layout-col-5 budines-left reveal" style="padding-right: clamp(0px, 4vw, 60px);">
+            <span class="section-eyebrow" style="color:var(--color-green-dark);">Horno propio</span>
+            <h2 class="section-title" style="color: var(--color-black);">Budines</h2>
+            <p class="budines-intro">Horneados cada mañana con recetas familiares que llevan tres generaciones. Sin conservantes, sin aditivos. Solo ingredientes que conocés.</p>
+          </div>
+
+          <!-- Derecha: acordeón -->
+          <div class="layout-col-7 budines-right reveal">
+            <ul class="accordion-list" id="acordeon" role="list">
+
+              <li class="accordion-item">
+                <button class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-num">01</span>
+                  <span class="accordion-title">Budín de arándanos</span>
+                  <span class="accordion-icon" aria-hidden="true">+</span>
+                </button>
+                <div class="accordion-body" role="region">
+                  <div class="accordion-body-inner">
+                    <div class="accordion-body-content">
+                      <p>Miga húmeda con arándanos y una cubierta crocante de crumble. Ideal para acompañar el café o la merienda.</p>
+                      <img class="accordion-body-img" src="img/budines/budin-arandanos-640.webp" width="240" height="180" alt="Budín de arándanos cortado en rebanadas" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li class="accordion-item">
+                <button class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-num">02</span>
+                  <span class="accordion-title">Budín de limón y amapola</span>
+                  <span class="accordion-icon" aria-hidden="true">+</span>
+                </button>
+                <div class="accordion-body" role="region">
+                  <div class="accordion-body-inner">
+                    <div class="accordion-body-content">
+                      <p>Textura húmeda y compacta, con ralladura de limón de Tucumán y semillas de amapola importadas. Cubierto con glasé de limón y ralladura fresca.</p>
+                      <!-- TODO: reemplazar por foto propia de este budín (provisoria: arándanos) -->
+                      <img class="accordion-body-img" src="img/budines/budin-arandanos-640.webp" width="240" height="180" alt="Budín de arándanos cortado en rebanadas" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li class="accordion-item">
+                <button class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-num">03</span>
+                  <span class="accordion-title">Budín de banana y nuez</span>
+                  <span class="accordion-icon" aria-hidden="true">+</span>
+                </button>
+                <div class="accordion-body" role="region">
+                  <div class="accordion-body-inner">
+                    <div class="accordion-body-content">
+                      <p>Bananas maduras de la Mesopotamia, nueces enteras tostadas y una pizca de canela. El clásico reconvertido con masa de manteca francesa.</p>
+                      <!-- TODO: reemplazar por foto propia de este budín (provisoria: arándanos) -->
+                      <img class="accordion-body-img" src="img/budines/budin-arandanos-640.webp" width="240" height="180" alt="Budín de arándanos cortado en rebanadas" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li class="accordion-item">
+                <button class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-num">04</span>
+                  <span class="accordion-title">Budín de chocolate intenso</span>
+                  <span class="accordion-icon" aria-hidden="true">+</span>
+                </button>
+                <div class="accordion-body" role="region">
+                  <div class="accordion-body-inner">
+                    <div class="accordion-body-content">
+                      <p>Cacao Valrhona al 72%, chips de chocolate negro y una cobertura de ganache oscuro. Para los que no negocian con el chocolate.</p>
+                      <!-- TODO: reemplazar por foto propia de este budín (provisoria: arándanos) -->
+                      <img class="accordion-body-img" src="img/budines/budin-arandanos-640.webp" width="240" height="180" alt="Budín de arándanos cortado en rebanadas" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+              <li class="accordion-item">
+                <button class="accordion-trigger" aria-expanded="false">
+                  <span class="accordion-num">05</span>
+                  <span class="accordion-title">Budín de zanahoria y naranja</span>
+                  <span class="accordion-icon" aria-hidden="true">+</span>
+                </button>
+                <div class="accordion-body" role="region">
+                  <div class="accordion-body-inner">
+                    <div class="accordion-body-content">
+                      <p>Zanahoria rallada en frío, ralladura de naranja de Corrientes y jengibre fresco. Cubierto con frosting de queso crema y miel de campo.</p>
+                      <!-- TODO: reemplazar por foto propia de este budín (provisoria: arándanos) -->
+                      <img class="accordion-body-img" src="img/budines/budin-arandanos-640.webp" width="240" height="180" alt="Budín de arándanos cortado en rebanadas" loading="lazy" decoding="async" />
+                    </div>
+                  </div>
+                </div>
+              </li>
+
+            </ul>
+          </div>
+
+        </div>
+    </section>
+
+    <!-- ========================================
+         6. TARTITAS — Carousel 3D
+    ========================================= -->
+    <section id="tartitas" aria-label="Tartitas">
+      <div class="section-header reveal">
+        <span class="section-eyebrow" style="color: var(--color-green-dark);">Pequeñas obras</span>
+        <h2 class="section-title">Tartitas</h2>
+      </div>
+
+      <div class="carousel-3d-wrapper reveal" style="margin-top: 38px;">
+        <button class="carousel-arrow" id="tartitasPrev" aria-label="Anterior">&#8249;</button>
+
+        <div class="carousel-3d-track" id="tartitasTrack">
+          <!-- Cards generadas por JS -->
+        </div>
+
+        <button class="carousel-arrow" id="tartitasNext" aria-label="Siguiente">&#8250;</button>
+      </div>
+
+      <div class="carousel-dots" id="tartitasDots" role="group" aria-label="Productos de Tartitas"></div>
+    </section>
+
+    <!-- ========================================
+         7. ALFAJORES — Bento
+    ========================================= -->
+    <section id="alfajores" aria-labelledby="alfajores-title">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Para la merienda</span>
+        <h2 class="section-title" id="alfajores-title">Alfajores</h2>
+        <p class="section-intro">Los clásicos de siempre, hechos con recetas caseras. Sin conservantes, sin aditivos: solo ingredientes que conocés.</p>
+      </div>
+
+      <div class="alfajores-bento reveal">
+        <article class="alfajor-tile">
+          <img src="img/alfajores/alfajor-maicena-640.webp"
+               srcset="img/alfajores/alfajor-maicena-640.webp 640w, img/alfajores/alfajor-maicena-1280.webp 1280w"
+               sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 40vw"
+               width="640" height="853" loading="lazy" decoding="async"
+               alt="Alfajores de maicena con dulce de leche y coco rallado sobre una tabla de madera" />
+          <div class="alfajor-tile-body">
+            <h3 class="alfajor-title">Alfajor de maicena</h3>
+            <p class="alfajor-desc">Tapas suaves que se deshacen, mucho dulce de leche y borde de coco rallado.</p>
+          </div>
+        </article>
+
+        <article class="alfajor-tile">
+          <img src="img/alfajores/alfajor-chocolate-640.webp"
+               srcset="img/alfajores/alfajor-chocolate-640.webp 640w, img/alfajores/alfajor-chocolate-1280.webp 1086w"
+               sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 55vw"
+               width="640" height="853" loading="lazy" decoding="async"
+               alt="Hileras de alfajores de chocolate en una bandeja" />
+          <div class="alfajor-tile-body">
+            <h3 class="alfajor-title">Alfajor de chocolate</h3>
+            <p class="alfajor-desc">Tapas de cacao rellenas con dulce de leche y bañadas en chocolate.</p>
+          </div>
+        </article>
+
+        <article class="alfajor-tile">
+          <!-- TODO: reemplazar por foto propia de este alfajor (provisoria: maicena) -->
+          <img src="img/alfajores/alfajor-maicena-640.webp"
+               srcset="img/alfajores/alfajor-maicena-640.webp 640w, img/alfajores/alfajor-maicena-1280.webp 1280w"
+               sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 28vw"
+               width="640" height="853" loading="lazy" decoding="async"
+               alt="Alfajores de maicena con dulce de leche y coco rallado sobre una tabla de madera" />
+          <div class="alfajor-tile-body">
+            <h3 class="alfajor-title">Alfajor santafesino</h3>
+            <p class="alfajor-desc">Capas finas y crocantes con dulce de leche, cubiertas de glaseado.</p>
+          </div>
+        </article>
+
+        <article class="alfajor-tile">
+          <!-- TODO: reemplazar por foto propia de este alfajor (provisoria: chocolate) -->
+          <img src="img/alfajores/alfajor-chocolate-640.webp"
+               srcset="img/alfajores/alfajor-chocolate-640.webp 640w, img/alfajores/alfajor-chocolate-1280.webp 1086w"
+               sizes="(max-width: 575px) 92vw, (max-width: 991px) 92vw, 28vw"
+               width="640" height="853" loading="lazy" decoding="async"
+               alt="Hileras de alfajores de chocolate en una bandeja" />
+          <div class="alfajor-tile-body">
+            <h3 class="alfajor-title">Alfajor de nuez</h3>
+            <p class="alfajor-desc">Tapas con nueces molidas, relleno de dulce de leche y baño de chocolate.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================
+         8. SALADO — Grilla
+    ========================================= -->
+    <section id="salado" aria-labelledby="salado-title">
+      <div class="section-header reveal">
+        <span class="section-eyebrow">Para compartir</span>
+        <h2 class="section-title" id="salado-title">Salado</h2>
+      </div>
+
+      <div class="product-grid reveal">
+        <article class="product-card">
+          <div class="product-card-media">
+            <img src="img/salado/bocaditos-640.webp"
+                 srcset="img/salado/bocaditos-640.webp 640w, img/salado/bocaditos-1280.webp 1280w"
+                 sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 30vw"
+                 width="640" height="853" loading="lazy" decoding="async"
+                 alt="Bandeja de bocaditos salados de jamón y queso con cebolla caramelizada" />
+          </div>
+          <div>
+            <h3 class="product-card-title">Bocaditos</h3>
+            <p class="product-card-desc">Bocados de jamón y queso, y de cebolla caramelizada. Ideales para picadas, eventos y catering.</p>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-card-media">
+            <img src="img/salado/scones-queso-640.webp"
+                 srcset="img/salado/scones-queso-640.webp 640w, img/salado/scones-queso-1280.webp 1280w"
+                 sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 30vw"
+                 width="640" height="853" loading="lazy" decoding="async"
+                 alt="Scones de queso apilados en un plato" />
+          </div>
+          <div>
+            <h3 class="product-card-title">Scones de queso</h3>
+            <p class="product-card-desc">Esponjosos por dentro y dorados por fuera. Perfectos para el desayuno o la merienda.</p>
+          </div>
+        </article>
+
+        <article class="product-card">
+          <div class="product-card-media">
+            <!-- TODO: reemplazar por foto propia de este producto (provisoria: bocaditos) -->
+            <img src="img/salado/bocaditos-640.webp"
+                 srcset="img/salado/bocaditos-640.webp 640w, img/salado/bocaditos-1280.webp 1280w"
+                 sizes="(max-width: 575px) 92vw, (max-width: 991px) 46vw, 30vw"
+                 width="640" height="853" loading="lazy" decoding="async"
+                 alt="Bandeja de bocaditos salados de jamón y queso con cebolla caramelizada" />
+          </div>
+          <div>
+            <h3 class="product-card-title">Mini tartas saladas</h3>
+            <p class="product-card-desc">Porciones individuales con jamón y queso, puerros y verduras de estación para picadas o catering.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ========================================
+         9. GALERÍA — fotos extra (abren en lightbox)
+    ========================================= -->
+    <section id="galeria" aria-labelledby="galeria-title">
+        <div class="section-header reveal">
+          <span class="section-eyebrow">Nuestro trabajo</span>
+          <h2 class="section-title" id="galeria-title">Galería</h2>
+        </div>
+
+        <div class="gallery-grid reveal">
+          <button type="button" class="gallery-item" data-full="img/galeria/lemon-pie-merengue-1280.webp">
+            <img src="img/galeria/lemon-pie-merengue-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Lemon pie visto desde arriba con espiral de merengue tostado" />
+            <span class="gallery-overlay"><span>Lemon pie</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/rogel-detalle-1280.webp">
+            <img src="img/galeria/rogel-detalle-640.webp" width="640" height="480" loading="lazy" decoding="async" alt="Detalle de las capas de masa y dulce de leche de un rogel" />
+            <span class="gallery-overlay"><span>Rogel</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/cookie-chocolate-1280.webp">
+            <img src="img/galeria/cookie-chocolate-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Mano sosteniendo una cookie partida con chocolate derretido" />
+            <span class="gallery-overlay"><span>Cookies</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/frutillas-detalle-1280.webp">
+            <img src="img/galeria/frutillas-detalle-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Primer plano de frutillas y naranja sobre una tarta" />
+            <span class="gallery-overlay"><span>Tarta de frutillas</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/tartitas-surtidas-1280.webp">
+            <img src="img/galeria/tartitas-surtidas-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Bandeja con tartitas surtidas de lima, chocolate y chocolate blanco" />
+            <span class="gallery-overlay"><span>Tartitas surtidas</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/cheesecake-porcion-1280.webp">
+            <img src="img/galeria/cheesecake-porcion-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Cheesecake con frutos rojos fotografiado al aire libre" />
+            <span class="gallery-overlay"><span>Cheesecake</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/tarta-chocolate-detalle-1280.webp">
+            <img src="img/galeria/tarta-chocolate-detalle-640.webp" width="640" height="820" loading="lazy" decoding="async" alt="Detalle de tarta de chocolate con crema y hilos de chocolate" />
+            <span class="gallery-overlay"><span>Chocolate y crema</span></span>
+          </button>
+          <button type="button" class="gallery-item" data-full="img/galeria/cookie-gigante-detalle-1280.webp">
+            <img src="img/galeria/cookie-gigante-detalle-640.webp" width="640" height="853" loading="lazy" decoding="async" alt="Cookie gigante cortada en porciones con frutos rojos y bombones" />
+            <span class="gallery-overlay"><span>Cookie gigante</span></span>
+          </button>
+        </div>
+    </section>
+
+    <!-- Lightbox de la galería -->
+    <dialog class="lightbox" id="lightbox" aria-label="Imagen ampliada">
+      <button type="button" class="lightbox-close" id="lightboxClose" aria-label="Cerrar">&times;</button>
+      <img id="lightboxImg" alt="" />
+      <p class="lightbox-caption" id="lightboxCaption"></p>
+    </dialog>
+
+  </main><!-- /main -->
+
+  <!-- ==========================================
+       10. FOOTER — CONTACTO
+  =========================================== -->
+  <footer id="contacto" aria-label="Contacto">
+      <div class="layout-split layout-split--center" style="padding: 64px 0 38px; gap: 32px 0;">
+
+        <!-- Izquierda: teléfono -->
+        <div class="layout-col-7 reveal">
+          <span class="contact-label">Contacto</span>
+          <a href="tel:+541123456789" class="contact-phone">+54 11 2345-6789</a>
+          <span class="contact-or">o escribinos a</span>
+          <a href="mailto:hola@sussi.com.ar" class="contact-email">hola@sussi.com.ar</a>
+        </div>
+
+        <!-- Derecha: redes -->
+        <div class="layout-col-5 reveal">
+          <div class="social-links">
+
+            <a href="#" class="social-btn instagram" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+              Instagram
+            </a>
+
+            <a href="#" class="social-btn tiktok" aria-label="TikTok">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.19 8.19 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z"/>
+              </svg>
+              TikTok
+            </a>
+
+            <a href="#" class="social-btn twitter" aria-label="Twitter / X">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              Twitter / X
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Footer bottom -->
+      <div class="footer-bottom" style="padding-bottom: 32px;">
+        <p>&copy; <span id="year">2026</span> Sassi — Pastelería. Todos los derechos reservados.</p>
+        <p>Desarrollado por <a href="https://www.linkedin.com/in/ezequiel-bosco/" class="footer-credit-link" target="_blank" rel="noopener noreferrer">Ezequiel Bosco</a></p>
+      </div>
+  </footer>
+
+  <!-- ==========================================
+       WHATSAPP FLOTANTE
+  =========================================== -->
+  <a href="https://wa.me/541123456789" target="_blank" rel="noopener noreferrer"
+     class="whatsapp-float" aria-label="Escribinos por WhatsApp">
+    <span class="whatsapp-tooltip">Escribinos</span>
+    <span class="whatsapp-btn">
+      <svg viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+      </svg>
+    </span>
+  </a>
+
+  <script>
+  /* =============================================
+     DATOS DE PRODUCTOS
+     `img` es la ruta base en img/<categoria>/; se generan
+     dos tamaños por foto: <img>-640.webp y <img>-1280.webp
+  ============================================= */
+  const tortasData = [
+    { img: 'img/tortas/lemon-pie',                      name: 'Lemon pie',                    desc: 'Crema de limón y espiral de merengue tostado sobre masa sablée.' },
+    { img: 'img/tortas/rogel',                          name: 'Rogel',                        desc: 'Capas finas y crocantes con dulce de leche, cubierto de merengue italiano.' },
+    { img: 'img/tortas/tarta-frutillas',                name: 'Tarta de frutillas',           desc: 'Crema, frutillas frescas y gajos de naranja con borde de merengue.' },
+    { img: 'img/tortas/cheesecake-frutos-rojos',        name: 'Cheesecake de frutos rojos',   desc: 'Base crocante, relleno cremoso y coulis de frutos rojos.' },
+    { img: 'img/tortas/torta-chocolate',                name: 'Torta de chocolate',           desc: 'Bizcochuelo húmedo de cacao en capas con relleno de chocolate.' },
+    { img: 'img/tortas/tarta-chocolate-crema',          name: 'Chocolate y crema',            desc: 'Base de chocolate, crema batida, hilos de chocolate y bombones.' },
+    { img: 'img/tortas/tarta-chocolate-dulce-de-leche', name: 'Chocolate y dulce de leche',   desc: 'Masa de cacao, ganache brillante y borde de dulce de leche.' },
+    { img: 'img/tortas/tarta-lima',                     name: 'Tarta de lima',                desc: 'Crema de lima ácida, merengue y ralladura fresca.' },
+    { img: 'img/tortas/tarta-lima-frutos-rojos',        name: 'Lima y frutos rojos',          desc: 'Corona de crema de lima con centro de frutos rojos.' },
+  ];
+
+  const cookiesData = [
+    { img: 'img/cookies/chips-chocolate',  name: 'Clásica con chips',      desc: 'Bordes crocantes, centro blando y trozos de chocolate.' },
+    { img: 'img/cookies/triple-chocolate', name: 'Triple chocolate',       desc: 'Masa de cacao con chips y centro de ganache.' },
+    { img: 'img/cookies/rellena',          name: 'Cookie rellena',         desc: 'Cookie de chocolate con corazón cremoso y cobertura de ganache.' },
+    { img: 'img/cookies/red-velvet',       name: 'Red velvet',             desc: 'Masa red velvet con chips de chocolate blanco.' },
+    { img: 'img/cookies/doble-chocolate',  name: 'Doble chocolate',        desc: 'Intensa, húmeda y con chips de chocolate semiamargo.' },
+    { img: 'img/cookies/lima',             name: 'Cookie de lima',         desc: 'Crema de lima, merengue y ralladura sobre cookie de manteca.' },
+    { img: 'img/cookies/cookie-gigante',   name: 'Cookie gigante',         desc: 'Para compartir: frutos rojos, bombones y frutos secos.' },
+  ];
+
+  const tartitasData = [
+    { img: 'img/tartitas/frutillas',                name: 'Frutillas',               desc: 'Crema pastelera, merengue y frutillas frescas.' },
+    { img: 'img/tartitas/lemon-pie',                name: 'Mini lemon pie',          desc: 'Crema de limón con merengue tostado. Tamaño individual.' },
+    { img: 'img/tartitas/lima',                     name: 'Lima',                    desc: 'Crema de lima, copos de crema y lima fresca.' },
+    { img: 'img/tartitas/coco-dulce-de-leche',      name: 'Coco y dulce de leche',   desc: 'Relleno de coco tostado con un copo de dulce de leche.' },
+    { img: 'img/tartitas/chocolate-blanco',         name: 'Chocolate blanco',        desc: 'Crema de chocolate blanco y láminas de chocolate.' },
+    { img: 'img/tartitas/frutos-rojos',             name: 'Frutos rojos',            desc: 'Relleno brillante de frutos rojos sobre masa sablée.' },
+    { img: 'img/tartitas/chocolate-dulce-de-leche', name: 'Chocolate',               desc: 'Ganache de chocolate con borde de dulce de leche.' },
+  ];
+
+  /** Atributos <img> responsivos para una ruta base de img/ */
+  function imgAttrs(base, sizes) {
+    return `src="${base}-640.webp" srcset="${base}-640.webp 640w, ${base}-1280.webp 1280w" sizes="${sizes}" decoding="async"`;
+  }
+
+  /* =============================================
+     FUNCIÓN: RENDERIZAR CAROUSEL 3D
+  ============================================= */
+  function buildCarousel(trackId, data, prevId, nextId, dotsId) {
+    const track = document.getElementById(trackId);
+    let current = 1; // índice del centro (siempre 3 visibles: prev, center, next)
+
+    // Un punto por producto; click lleva ese producto al centro
+    const dots = data.map((item, i) => {
+      const dot = document.createElement('button');
+      dot.type = 'button';
+      dot.className = 'carousel-dot';
+      dot.setAttribute('aria-label', `${item.name} (${i + 1} de ${data.length})`);
+      dot.addEventListener('click', () => { current = i; render(); });
+      document.getElementById(dotsId).appendChild(dot);
+      return dot;
+    });
+
+    function render() {
+      track.innerHTML = '';
+      const indices = [
+        (current - 1 + data.length) % data.length,
+        current,
+        (current + 1) % data.length,
+      ];
+      const classes = ['side', 'center', 'side'];
+
+      indices.forEach((dataIdx, pos) => {
+        const item = data[dataIdx];
+        const card = document.createElement('div');
+        card.className = `card-3d ${classes[pos]}`;
+        if (trackId === 'cookiesTrack') {
+          card.innerHTML = `
+            <div class="cookie-card-media">
+              <img ${imgAttrs(item.img, '340px')} alt="${item.name}" loading="lazy" />
+            </div>
+            <div class="cookie-card-body">
+              <div>
+                <h4 class="cookie-card-title">${item.name}</h4>
+                <p class="cookie-card-desc">${item.desc}</p>
+              </div>
+            </div>
+          `;
+        } else {
+          card.innerHTML = `
+            <img ${imgAttrs(item.img, '340px')} alt="${item.name}" loading="lazy" />
+            <div class="card-3d-overlay">
+              <h4>${item.name}</h4>
+              <p>${item.desc}</p>
+            </div>
+          `;
+        }
+        track.appendChild(card);
+      });
+
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === current);
+        if (i === current) dot.setAttribute('aria-current', 'true');
+        else dot.removeAttribute('aria-current');
+      });
+    }
+    render();
+
+    document.getElementById(prevId).addEventListener('click', () => {
+      current = (current - 1 + data.length) % data.length;
+      render();
+    });
+    document.getElementById(nextId).addEventListener('click', () => {
+      current = (current + 1) % data.length;
+      render();
+    });
+
+    // Touch/swipe
+    let touchStartX = 0;
+    track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+    track.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      if (Math.abs(dx) > 50) {
+        if (dx < 0) current = (current + 1) % data.length;
+        else current = (current - 1 + data.length) % data.length;
+        render();
+      }
+    });
+  }
+
+  buildCarousel('cookiesTrack',  cookiesData,  'cookiesPrev',  'cookiesNext',  'cookiesDots');
+  buildCarousel('tartitasTrack', tartitasData, 'tartitasPrev', 'tartitasNext', 'tartitasDots');
+
+  /* =============================================
+     ESTANTE DE TORTAS (scroll horizontal nativo + barra de progreso)
+  ============================================= */
+  function buildShelf(shelfId, data, prevId, nextId, barId) {
+    const shelf = document.getElementById(shelfId);
+    const bar   = document.getElementById(barId);
+    const prev  = document.getElementById(prevId);
+    const next  = document.getElementById(nextId);
+
+    shelf.innerHTML = data.map(item => `
+      <article class="shelf-card">
+        <div class="shelf-card-media">
+          <img ${imgAttrs(item.img, '(max-width: 767px) 78vw, (max-width: 1199px) 40vw, 30vw')} alt="${item.name}" loading="lazy" />
+        </div>
+        <div>
+          <h3 class="shelf-card-title">${item.name}</h3>
+          <p class="shelf-card-desc">${item.desc}</p>
+        </div>
+      </article>`).join('');
+
+    // Paso = ancho de una card + gap
+    const step = () => {
+      const card = shelf.querySelector('.shelf-card');
+      return card.getBoundingClientRect().width + parseFloat(getComputedStyle(shelf).columnGap);
+    };
+    prev.addEventListener('click', () => shelf.scrollBy({ left: -step(), behavior: 'smooth' }));
+    next.addEventListener('click', () => shelf.scrollBy({ left:  step(), behavior: 'smooth' }));
+
+    // Barra: ancho = porción visible; posición = cuánto se recorrió
+    function update() {
+      const max = shelf.scrollWidth - shelf.clientWidth;
+      const visible = shelf.clientWidth / shelf.scrollWidth;
+      const progress = max > 0 ? shelf.scrollLeft / max : 0;
+      bar.style.width = (visible * 100) + '%';
+      bar.style.transform = `translateX(${progress * (1 / visible - 1) * 100}%)`;
+      prev.disabled = shelf.scrollLeft <= 2;
+      next.disabled = shelf.scrollLeft >= max - 2;
+    }
+    shelf.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  }
+
+  buildShelf('tortasShelf', tortasData, 'tortasShelfPrev', 'tortasShelfNext', 'tortasShelfBar');
+
+
+  /* =============================================
+     HERO CAROUSEL — imagen fija, texto animado
+  ============================================= */
+  (function() {
+    const panels  = document.querySelectorAll('.hero-text-panel');
+    const dots    = document.querySelectorAll('.hero-dot');
+    const heroImg = document.getElementById('heroImgEl');
+    let current   = 0;
+    let timer;
+    let isAnimating = false;
+
+    function goTo(idx) {
+      if (isAnimating || idx === current) return;
+      isAnimating = true;
+
+      const prev = current;
+      current = (idx + panels.length) % panels.length;
+
+      // ── Texto: salida del panel anterior ──
+      panels[prev].classList.remove('active');
+      panels[prev].classList.add('exit');
+
+      // ── Imagen: cross-fade ──
+      const newSrc = panels[current].dataset.img;
+      heroImg.classList.add('fade-out');
+      setTimeout(() => {
+        heroImg.src = newSrc;
+        heroImg.onload = () => {
+          heroImg.classList.remove('fade-out');
+        };
+        // fallback si la imagen ya estaba cacheada
+        if (heroImg.complete) heroImg.classList.remove('fade-out');
+      }, 350);
+
+      // ── Texto: entrada del nuevo panel (pequeño delay para escalonado) ──
+      setTimeout(() => {
+        panels[prev].classList.remove('exit');
+        panels[current].classList.add('active');
+        isAnimating = false;
+      }, 120);
+
+      // ── Dots ──
+      dots[prev].classList.remove('active');
+      dots[prev].setAttribute('aria-selected', 'false');
+      dots[current].classList.add('active');
+      dots[current].setAttribute('aria-selected', 'true');
+    }
+
+    // Sin autoplay para usuarios que prefieren movimiento reducido
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function startAuto() {
+      if (reduceMotion) return;
+      clearInterval(timer);
+      timer = setInterval(() => goTo(current + 1), 5000);
+    }
+    function stopAuto() { clearInterval(timer); }
+
+    dots.forEach((dot, i) => {
+      dot.addEventListener('click', () => { stopAuto(); goTo(i); startAuto(); });
+    });
+
+    // Swipe en mobile
+    const hero = document.getElementById('hero');
+    let tx = 0;
+    hero.addEventListener('touchstart', e => { tx = e.touches[0].clientX; stopAuto(); }, { passive: true });
+    hero.addEventListener('touchend', e => {
+      const dx = e.changedTouches[0].clientX - tx;
+      if (Math.abs(dx) > 50) goTo(dx < 0 ? current + 1 : current - 1);
+      startAuto();
+    });
+
+    startAuto();
+  })();
+
+  /* =============================================
+     NAVBAR SCROLL
+  ============================================= */
+  (function() {
+    const navbar = document.getElementById('navbar');
+    const heroEl = document.getElementById('hero');
+
+    function onScroll() {
+      if (window.scrollY > 80) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
+    }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+  })();
+
+  /* =============================================
+     HAMBURGER MENU
+  ============================================= */
+  (function() {
+    const btn   = document.getElementById('hamburger');
+    const menu  = document.getElementById('mobileMenu');
+    const links = menu.querySelectorAll('a');
+
+    btn.addEventListener('click', () => {
+      const isOpen = menu.classList.toggle('open');
+      btn.classList.toggle('open', isOpen);
+      btn.setAttribute('aria-expanded', isOpen);
+    });
+
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        menu.classList.remove('open');
+        btn.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  })();
+
+  /* =============================================
+     ACORDEÓN BUDINES
+  ============================================= */
+  (function() {
+    const items = document.querySelectorAll('.accordion-item');
+
+    items.forEach(item => {
+      const trigger = item.querySelector('.accordion-trigger');
+
+      trigger.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+
+        // Cerrar todos
+        items.forEach(i => {
+          i.classList.remove('open');
+          i.querySelector('.accordion-trigger').setAttribute('aria-expanded', 'false');
+        });
+
+        // Abrir el actual si estaba cerrado
+        if (!isOpen) {
+          item.classList.add('open');
+          trigger.setAttribute('aria-expanded', 'true');
+        }
+      });
+    });
+  })();
+
+  /* =============================================
+     LIGHTBOX GALERÍA (<dialog> nativo: Esc y foco incluidos)
+  ============================================= */
+  (function() {
+    const dialog  = document.getElementById('lightbox');
+    const img     = document.getElementById('lightboxImg');
+    const caption = document.getElementById('lightboxCaption');
+
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const thumb = item.querySelector('img');
+        img.src = item.dataset.full;
+        img.alt = thumb.alt;
+        caption.textContent = item.querySelector('.gallery-overlay span').textContent;
+        dialog.showModal();
+      });
+    });
+
+    document.getElementById('lightboxClose').addEventListener('click', () => dialog.close());
+    // Click fuera de la imagen (sobre el backdrop) cierra
+    dialog.addEventListener('click', e => { if (e.target === dialog) dialog.close(); });
+  })();
+
+  /* =============================================
+     SCROLL REVEAL (IntersectionObserver)
+  ============================================= */
+  (function() {
+    const els = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    els.forEach(el => observer.observe(el));
+  })();
+
+  /* El scroll suave a las anclas lo resuelve CSS:
+     html { scroll-behavior: smooth; scroll-padding-top: var(--navbar-h); } */
+
+  /* Año del footer siempre actualizado */
+  document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>

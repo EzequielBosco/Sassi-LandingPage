@@ -1,0 +1,13 @@
+# Fotos originales sin optimizar (~200 MB, JPG/PNG/HEIC de celular).
+# La web usa las versiones optimizadas de img/, que SÍ se suben.
+docs/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Herramientas / deploy
+node_modules/
+.vercel/
+.env*
